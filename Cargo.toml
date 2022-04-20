@@ -1,0 +1,17 @@
+[package]
+name = "tracpls"
+version = "0.1.0"
+edition = "2021"
+authors = ["Wasin Thonkaew <wasin@wasin.io>"]
+description = "cli tool to get smart contract code and its ABI for ease of viewing on terminal"
+repository = "https://github.com/haxpor/tracpls"
+license = "MIT"
+keywords = ["bsc", "contract", "abi", "crypto", "smart-contract"]
+categories = ["command-line-utilities"]
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "3.1.10", features = ["derive"] }
+bscscan = "0.4.0"
