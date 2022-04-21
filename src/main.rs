@@ -86,12 +86,30 @@ fn main() {
     }
     else {
         match contracts.get_verified_source_code(&ctx, &cmd_args.address) {
-            Ok(contract_codes) => {
-                if !cmd_args.no_clean_crlf {
-                    println!("{}", clean_crlf(&contract_codes[0].source_code));
+            Ok((contract_codes, is_submitted_as_json)) => {
+                if is_submitted_as_json {
+                    // we have more information about number of files, and
+                    // separate content of code for each file now. So there can
+                    // be options to handle this either
+                    // 1. output all files altogether as a whole
+                    // 2. output into target directory by writing into multiple files
+                    for i in 1..contract_codes.len() {
+                        println!("// ---------- {} ----------", contract_codes[i].contract_name);
+                        if !cmd_args.no_clean_crlf {
+                            println!("{}", clean_crlf(&contract_codes[i].source_code));
+                        }
+                        else {
+                            println!("{}", contract_codes[i].source_code);
+                        }
+                    }
                 }
                 else {
-                    println!("{}", contract_codes[0].source_code);
+                    if !cmd_args.no_clean_crlf {
+                        println!("{}", clean_crlf(&contract_codes[0].source_code));
+                    }
+                    else {
+                        println!("{}", contract_codes[0].source_code);
+                    }
                 }
             },
             Err(e) => {
