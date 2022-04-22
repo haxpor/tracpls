@@ -240,7 +240,41 @@ fn main() {
                     }
                 }
                 else {
-                    println!("{}", if !cmd_args.no_clean_crlf { clean_crlf(&contract_codes[0].source_code) } else { contract_codes[0].source_code.clone() });
+                    if has_out_dir_path {
+                        let out_dir_str = cmd_args.out_dir_path.unwrap();
+                        // use contract name as the filename also append with .sol if necessary
+                        let mut filename = contract_codes[0].contract_name.clone();
+                        if !filename.ends_with(".sol") {
+                            filename.push_str(".sol");
+                        }
+                        let write_filepath = match combine_two_path_components(&out_dir_str, &filename) {
+                            Ok(res) => res,
+                            Err(e) => {
+                                eprintln!("{}", e);
+                                std::process::exit(1);
+                            }
+                        };
+
+                        match create_intermediate_dirs(&write_filepath) {
+                            Ok(_) => (),
+                            Err(e) => {
+                                eprintln!("{}", e);
+                                std::process::exit(1);
+                            }
+                        }
+
+                        let content = if !cmd_args.no_clean_crlf { clean_crlf(&contract_codes[0].source_code) } else { contract_codes[0].source_code.clone() };
+                        match write_file(&write_filepath, &content) {
+                            Ok(_) => if !cmd_args.silence { println!("{}", &write_filepath) },
+                            Err(e) => {
+                                eprintln!("{}", e);
+                                std::process::exit(1);
+                            }
+                        }
+                    }
+                    else {
+                        println!("{}", if !cmd_args.no_clean_crlf { clean_crlf(&contract_codes[0].source_code) } else { contract_codes[0].source_code.clone() });
+                    }
                 }
             },
             Err(e) => {
