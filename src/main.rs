@@ -30,6 +30,10 @@ struct CommandlineArgs {
     /// name of each file as seen from JSON data of such code as filename.
     #[clap(long="out-dir", required=false)]
     pub out_dir_path: Option<String>,
+
+    /// Whether or not to print meta information during execution.
+    #[clap(long="silence", short='s', multiple_values=false, default_missing_value="true", takes_value=false)]
+    pub silence: bool,
 }
 
 /// Clean CR/LF as necessary as per platform running the application.
@@ -168,7 +172,7 @@ fn main() {
 
                     let content = if !cmd_args.no_clean_crlf { clean_crlf(&abi) } else { abi };
                     match write_file(&write_filepath, &content) {
-                        Ok(_) => println!("{}", &write_filepath),
+                        Ok(_) => if !cmd_args.silence { println!("{}", &write_filepath) },
                         Err(e) => {
                             eprintln!("{}", e);
                             std::process::exit(1);
@@ -215,7 +219,7 @@ fn main() {
 
                             let content = if !cmd_args.no_clean_crlf { clean_crlf(&contract_codes[i].source_code) } else { contract_codes[i].source_code.clone() };
                             match write_file(&write_filepath, &content) {
-                                Ok(_) => println!("{}", &write_filepath),
+                                Ok(_) => if !cmd_args.silence { println!("{}", &write_filepath) },
                                 Err(e) => {
                                     eprintln!("{}", e);
                                     std::process::exit(1);
