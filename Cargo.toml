@@ -15,3 +15,4 @@ readme = "README.md"
 [dependencies]
 clap = { version = "3.1.10", features = ["derive"] }
 bscscan = "0.5.1"
+regex = "1.5.5"
