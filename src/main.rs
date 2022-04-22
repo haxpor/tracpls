@@ -25,9 +25,10 @@ struct CommandlineArgs {
     #[clap(long="no-abi-pretty-print", multiple_values=false, default_missing_value="true", takes_value=false)]
     pub no_abi_pretty_print: bool,
 
-    /// Output directory path to write content of files to. In case of non-JSON format code
-    /// it will use the filename from its contract name, otherwise it will use
-    /// name of each file as seen from JSON data of such code as filename.
+    /// Output directory path to write content of files to. In case of --abi-only,
+    /// it will output into fixed filename of "abi.json" but at the supplied
+    /// output directory. For JSON-based code, it will use the contract name of
+    /// each file as the filename to write its content to.
     #[clap(long="out-dir", required=false)]
     pub out_dir_path: Option<String>,
 
