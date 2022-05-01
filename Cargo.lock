@@ -64,20 +64,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bscscan"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b395a434d1581dd626620b0b67d5653defb5dbf2868c19a63e743556a72df4a6"
-dependencies = [
- "isahc",
- "primitive-types",
- "regex",
- "serde",
- "serde_json",
- "url",
-]
-
-[[package]]
 name = "byte-slice-cast"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -228,6 +214,20 @@ name = "event-listener"
 version = "2.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77f3309417938f28bf8228fcff79a4a37103981e3e186d2ccd19c74b38f4eb71"
+
+[[package]]
+name = "evmscan"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "07370fe094a09bd7298db581e814b37ff865d333ca7f369851f6226dfe2ccc1f"
+dependencies = [
+ "isahc",
+ "primitive-types",
+ "regex",
+ "serde",
+ "serde_json",
+ "url",
+]
 
 [[package]]
 name = "fastrand"
@@ -955,8 +955,8 @@ dependencies = [
 name = "tracpls"
 version = "0.2.2"
 dependencies = [
- "bscscan",
  "clap",
+ "evmscan",
  "regex",
 ]
 
