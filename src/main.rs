@@ -1,5 +1,6 @@
-use ::bscscan::bscscan;
-use ::bscscan::environ::Context;
+use ::evmscan::evmscan;
+use ::evmscan::environ::Context;
+use ::evmscan::prelude::*;
 use clap::Parser;
 use std::path::PathBuf;
 
@@ -35,6 +36,11 @@ struct CommandlineArgs {
     /// Whether or not to print meta information during execution.
     #[clap(long="silence", short='s', multiple_values=false, default_missing_value="true", takes_value=false)]
     pub silence: bool,
+
+    /// Which chain to work with.
+    /// Possible values are 'bsc', 'ethereum', and 'polygon'.
+    #[clap(long="chain", short='c', required=true, multiple_values=false)]
+    pub chain: String,
 }
 
 /// Clean CR/LF as necessary as per platform running the application.
@@ -137,6 +143,28 @@ fn write_file(filepath: &str, content: &str) -> Result<(), String> {
     Ok(())
 }
 
+/// Select and return api key for selected chain type.
+/// The program needs environment variables as follows to be defined to cover
+/// all API platforms which one of them will be used at runtime depending on
+/// which chain has been selected.
+///
+/// * `bsc` - require environment variable `TRACPLS_BSCSCAN_APIKEY`
+/// * `ethereum` - require environment variable `TRACPLS_ETHERSCAN_APIKEY`
+/// * `polygon` - require environment variable `TRACPLS_POLYGONSCAN_APIKEY`
+///
+/// If such environment variable after selected has not defined yet, then
+/// this function will panic.
+///
+/// # Arguments
+/// * `chain` - chain type
+fn select_apikey(chain: ChainType) -> String {
+    match chain {
+        ChainType::BSC => std::env::var("TRACPLS_BSCSCAN_APIKEY").expect("Required environment variable 'TRACPLS_BSCSCAN_APIKEY' to be defined"),
+        ChainType::Ethereum => std::env::var("TRACPLS_ETHERSCAN_APIKEY").expect("Required environment variable 'TRACPLS_ETHERSCAN_APIKEY' to be defined"),
+        ChainType::Polygon => std::env::var("TRACPLS_POLYGONSCAN_APIKEY").expect("Required environment variable 'TRACPLS_POLYGONSCAN_APIKEY' to be defined"),
+    }
+}
+
 fn main() {
     let cmd_args = CommandlineArgs::parse();
     let has_out_dir_path = cmd_args.out_dir_path.is_some();
@@ -147,8 +175,28 @@ fn main() {
         std::process::exit(1);
     }
 
-    let ctx = Context { api_key: std::env::var("TRACPLS_BSCSCAN_APIKEY").expect("Required environment variable 'TRACPLS_BSCSCAN_APIKEY' to be defined") };
-    let contracts = bscscan::contracts();
+    // validate value of chain flag option
+    let chain_value = cmd_args.chain.to_lowercase();
+
+    // use evmscan::types::evm_types::ChainType
+    let chain: Option<ChainType>;
+    if chain_value == "bsc" {
+        chain = Some(ChainType::BSC);
+    }
+    else if chain_value == "ethereum" {
+        chain = Some(ChainType::Ethereum);
+    }
+    else if chain_value == "polygon" {
+        chain = Some(ChainType::Polygon);
+    }
+    else {
+        eprintln!("Error invalid value for --chain.
+Possible values are 'bsc', 'ethereum', or 'polygon'.");
+        std::process::exit(1);
+    }
+
+    let ctx = Context::create(chain.unwrap(), select_apikey(chain.unwrap()));
+    let contracts = evmscan::contracts();
 
     if cmd_args.abi_only {
         match contracts.get_abi(&ctx, &cmd_args.address, !cmd_args.no_abi_pretty_print) {
